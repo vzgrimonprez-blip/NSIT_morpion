@@ -2,32 +2,35 @@ import random
 import pygame
 import sys
 
-
-pygame.init()
-screen = pygame.display.set_mode((900, 600))
-pygame.display.set_caption("Affichage de texte")
-
-
-# Charger et redimensionner l'image de fond
-background = pygame.image.load("fond_morpion.jpg")
-import random
-import pygame
-import sys
-
 pygame.init()
 screen = pygame.display.set_mode((1000, 600))
 pygame.display.set_caption("Morpion - Accueil")
 
 # Charger et redimensionner l'image de fond
 background = pygame.image.load("fond_morpion.jpg")
+background = pygame.transform.scale(background, (600, 600))  # 60% de la largeur
 
+# Préparer le texte avec gestion du débordement
+font = pygame.font.SysFont('Arial', 20)  # Taille réduite pour éviter le débordement
+message = "Bienvenus, voici un jeu de morpion contre un bot !"
 
-# Redimensionner pour qu'elle occupe 60% de la largeur (600 pixels)
-background = pygame.transform.scale(background, (600, 600))
+# Découper le texte en plusieurs lignes si nécessaire
+max_width = 380  # Largeur maximale pour le texte (400px - marge)
+lines = []
+words = message.split()
+current_line = ""
+for word in words:
+    test_line = current_line + word + " "
+    text_surface = font.render(test_line, True, (0, 0, 0))
+    if text_surface.get_width() <= max_width:
+        current_line = test_line
+    else:
+        lines.append(current_line)
+        current_line = word + " "
+lines.append(current_line)  # Ajouter la dernière ligne
 
-# Créer le texte
-font = pygame.font.SysFont('Arial', 24)
-text = font.render("Bienvenus, voici un jeu de morpion contre un bot !", True, (0, 0, 0))
+# Créer un fond coloré pour la zone de texte (optionnel)
+pygame.draw.rect(screen, (220, 220, 220), (600, 0, 400, 600))  # Fond gris clair
 
 running = True
 while running:
@@ -35,37 +38,23 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Remplir l'écran en blanc (ou une autre couleur)
-    screen.fill((255, 255, 255))
+    screen.fill((255, 255, 255))  # Fond blanc
 
-    # Afficher l'image à gauche (position x=0)
+    # Afficher l'image à gauche
     screen.blit(background, (0, 0))
 
-    # Afficher le texte à droite (position x=600)
-    screen.blit(text, (650, 100))
+    # Afficher le texte à droite, ligne par ligne
+    y_offset = 200  # Position verticale de départ
+    for line in lines:
+        text_surface = font.render(line, True, (0, 0, 0))
+        screen.blit(text_surface, (620, y_offset))  # 620 = 600 + marge de 20px
+        y_offset += 30  # Espacement entre les lignes
 
     pygame.display.flip()
 
 pygame.quit()
 
-# [Le reste de ton code pour le morpion...]
-
-# Créer le texte
-font = pygame.font.SysFont('Arial', 24)
-text = font.render("Bienvenus,voici un jeu de morpion contre un bot !", True, (0, 0, 0))
-
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    screen.fill((0, 0, 0))
-    screen.blit(background, (0, 0)) 
-    screen.blit(text, (100, 100))
-    pygame.display.flip()
-
-pygame.quit()
-
+# Fonctions du jeu de morpion (inchangées)
 def afficher_plateau(plateau):
     """Affiche le plateau de jeu."""
     for i in range(3):
@@ -99,25 +88,19 @@ def morpion():
     """Lance le jeu de morpion contre un bot."""
     plateau = [" "] * 9
     joueur_actuel = "X"
-
     print("Bienvenue au jeu de Morpion contre un bot !")
     print("Les positions sont numérotées de 1 à 9, de gauche à droite et de haut en bas.")
-
     for tour in range(9):
         afficher_plateau(plateau)
-
         if joueur_actuel == "X":
             position = int(input("Joueur X, choisissez une position (1-9) : ")) - 1
         else:
             print("Le bot réfléchit...")
             position = coup_bot(plateau)
-
         if plateau[position] != " ":
             print("Cette position est déjà prise. Essayez une autre position.")
             continue
-
         plateau[position] = joueur_actuel
-
         gagnant = verifier_victoire(plateau)
         if gagnant:
             afficher_plateau(plateau)
@@ -126,11 +109,10 @@ def morpion():
             else:
                 print("Le bot a gagné !")
             return
-
         joueur_actuel = "O" if joueur_actuel == "X" else "X"
-
     afficher_plateau(plateau)
     print("Match nul !")
 
-# Lancer le jeu
+# Lancer le jeu après la fermeture de la fenêtre
 morpion()
+
