@@ -1,0 +1,162 @@
+import random
+import pygame
+import sys
+
+# --- Initialisation Pygame ---
+pygame.init()
+# Définition des couleurs
+BLANC = (255, 255, 255)
+GRIS_CLAIR = (220, 220, 220)
+VIOLET = (148, 0, 211)
+NOIR = (0, 0, 0)
+VERT = (0, 150, 0)
+ROUGE = (200, 0, 0)
+
+# Paramètres de l'écran
+largeur_ecran = 600
+hauteur_ecran = 600
+screen = pygame.display.set_mode((largeur_ecran, hauteur_ecran))
+pygame.display.set_caption("Morpion - Pygame")
+
+# Chargement des polices
+font_jeu = pygame.font.SysFont('Arial', 80) # Pour X et O
+font_message = pygame.font.SysFont('Arial', 40) # Pour les messages de statut
+
+# --- Paramètres du Jeu ---
+plateau = [" "] * 9
+joueur_actuel = "X"
+jeu_en_cours = True
+
+# Coordonnées pour dessiner la grille (simples car 600x600)
+taille_case = largeur_ecran // 3
+lignes_grille = [
+    (taille_case, 0, taille_case, hauteur_ecran), # Ligne verticale 1
+    (2 * taille_case, 0, 2 * taille_case, hauteur_ecran), # Ligne verticale 2
+    (0, taille_case, largeur_ecran, taille_case), # Ligne horizontale 1
+    (0, 2 * taille_case, largeur_ecran, 2 * taille_case) # Ligne horizontale 2
+]
+
+# --- Fonctions du Jeu ---
+
+def dessiner_plateau():
+    """Dessine la grille et les symboles X/O sur l'écran Pygame."""
+    screen.fill(GRIS_CLAIR)
+
+    # Dessiner la grille
+    for x1, y1, x2, y2 in lignes_grille:
+        pygame.draw.line(screen, NOIR, (x1, y1), (x2, y2), 5) # Utilise la fonction draw.line pour les lignes (x1,y1) à (x2,y2)
+
+    # Dessiner les symboles
+    for i in range(9):
+        symbole = plateau[i]
+        if symbole != " ":
+            # Calculer la position x, y de la case (0-8)
+            col = i % 3
+            ligne = i // 3
+
+            # Centre de la case
+            centre_x = col * taille_case + taille_case // 2
+            centre_y = ligne * taille_case + taille_case // 2
+
+            # Rendu du texte (X ou O)
+            couleur = ROUGE if symbole == "X" else VERT
+            texte_surface = font_jeu.render(symbole, True, couleur)
+            texte_rect = texte_surface.get_rect(center=(centre_x, centre_y))
+            screen.blit(texte_surface, texte_rect)
+
+def verifier_victoire(plateau):
+    """Vérifie si un joueur a gagné."""
+    # Combinaisons gagnantes (indices du plateau)
+    victoires = [
+        (0, 1, 2), (3, 4, 5), (6, 7, 8),  # Lignes
+        (0, 3, 6), (1, 4, 7), (2, 5, 8),  # Colonnes
+        (0, 4, 8), (2, 4, 6)             # Diagonales
+    ]
+    for a, b, c in victoires:
+        if plateau[a] == plateau[b] == plateau[c] != " ":
+            return plateau[a]
+    
+    if " " not in plateau:
+        return "NUL" # Match nul si le plateau est plein
+        
+    return None
+
+def coup_bot(plateau):
+    """Le bot choisit une position aléatoire parmi les positions disponibles."""
+    # Simple bot aléatoire
+    positions_disponibles = [i for i, val in enumerate(plateau) if val == " "]
+    if positions_disponibles:
+        return random.choice(positions_disponibles)
+    return -1 # Ne devrait pas arriver si la vérification de NUL est faite avant
+
+def gerer_clic(pos, joueur_actuel, plateau):
+    """Détermine quelle case a été cliquée et met à jour le plateau."""
+    x, y = pos
+    # Convertir les coordonnées du clic en indice de plateau (0-8)
+    col = x // taille_case
+    ligne = y // taille_case
+    position = ligne * 3 + col
+    
+    if 0 <= position < 9 and plateau[position] == " ":
+        plateau[position] = joueur_actuel
+        return True, position
+    return False, -1
+
+# --- Boucle Principale du Jeu ---
+running = True
+message_final = ""
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+            
+        if event.type == pygame.MOUSEBUTTONDOWN and jeu_en_cours:
+            if joueur_actuel == "X": # Le joueur humain joue
+                clic_reussi, _ = gerer_clic(pygame.mouse.get_pos(), joueur_actuel, plateau)
+                if clic_reussi:
+                    gagnant = verifier_victoire(plateau)
+                    if gagnant:
+                        jeu_en_cours = False
+                    else:
+                        joueur_actuel = "O" # Passer au bot
+                        
+    # Tour du Bot (si c'est son tour et que le jeu est toujours en cours)
+    if joueur_actuel == "O" and jeu_en_cours:
+        pygame.time.wait(500) # Petite pause pour simuler la "réflexion"
+        position_bot = coup_bot(plateau)
+        if position_bot != -1:
+            plateau[position_bot] = "O"
+            gagnant = verifier_victoire(plateau)
+            if gagnant:
+                jeu_en_cours = False
+            else:
+                joueur_actuel = "X" # Revenir au joueur humain
+        else: # Cas de position_bot = -1, ça ne devrait pas arriver ici si bien géré
+             jeu_en_cours = False
+             
+    # Affichage
+    dessiner_plateau()
+    
+    # Affichage du message de statut/victoire
+    if not jeu_en_cours:
+        gagnant = verifier_victoire(plateau) # Vérifier à nouveau pour s'assurer
+        if gagnant == "X":
+            message_final = "🎉 Félicitations, tu as gagné !"
+            couleur_message = ROUGE
+        elif gagnant == "O":
+            message_final = "🤖 Le bot a gagné !"
+            couleur_message = VERT
+        elif gagnant == "NUL":
+            message_final = "🤝 Match nul !"
+            couleur_message = VIOLET
+            
+        # Afficher le message de fin de partie au centre de l'écran
+        message_surface = font_message.render(message_final, True, couleur_message, BLANC)
+        message_rect = message_surface.get_rect(center=(largeur_ecran // 2, hauteur_ecran // 2))
+        screen.blit(message_surface, message_rect)
+
+    pygame.display.flip()
+
+pygame.quit()
+sys.exit() # Utilisez sys.exit() pour une sortie propre
