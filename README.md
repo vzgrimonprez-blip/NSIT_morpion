@@ -15,155 +15,154 @@ J'ai donc du lui demander de me regler se probleme.
 
 **Voici l'explication de mon code ligne par ligne:**  
 
-1. Importation des bibliothèques
-python
-Copier
+1. Importation des bibliothèques  
 
-import random
-import pygame
-import sys
+
+import random  
+import pygame  
+import sys  
 
 
 **random : Utilisé pour permettre au bot de choisir une case aléatoire.
 pygame : Bibliothèque principale pour créer des jeux en 2D.
 sys : Utilisé pour quitter proprement le programme.**
 
-2. Initialisation de Pygame
+2. Initialisation de Pygame  
 
 
-pygame.init()
+pygame.init()  
 
 
 **Initialise tous les modules de Pygame.**
 
-3. Paramètres de la fenêtre
+3. Paramètres de la fenêtre  
 
 
-largeur_fenetre = 1000
-hauteur_fenetre = 600
-largeur_jeu = 600
-hauteur_jeu = 600
-screen = pygame.display.set_mode((largeur_fenetre, hauteur_fenetre))
-pygame.display.set_caption("Morpion - Accueil & Jeu")
+largeur_fenetre = 1000  
+hauteur_fenetre = 600  
+largeur_jeu = 600  
+hauteur_jeu = 600  
+screen = pygame.display.set_mode((largeur_fenetre, hauteur_fenetre))  
+pygame.display.set_caption("Morpion - Accueil & Jeu")  
 
 
 **Définit la taille de la fenêtre du jeu (1000x600 pixels).
 La zone de jeu (grille du morpion) occupe 600x600 pixels.
 Crée la fenêtre et définit son titre.**
 
-4. Définition des couleurs
+4. Définition des couleurs  
 
 
-BLANC = (255, 255, 255)
-GRIS_CLAIR = (220, 220, 220)
-VIOLET = (148, 0, 211)
-NOIR = (0, 0, 0)
-JAUNE = (255, 255, 0)
-VERT = (0, 150, 0)
-ROUGE = (200, 0, 0)
+BLANC = (255, 255, 255)  
+GRIS_CLAIR = (220, 220, 220)  
+VIOLET = (148, 0, 211)  
+NOIR = (0, 0, 0)  
+JAUNE = (255, 255, 0)  
+VERT = (0, 150, 0)  
+ROUGE = (200, 0, 0)  
 
 
 **Définit des constantes pour les couleurs utilisées dans le jeu (format RGB).**
 
-5. Chargement de l'image de fond
+5. Chargement de l'image de fond  
 
 
-try:
-    background = pygame.image.load("fond_morpion.jpg")
-    background = pygame.transform.scale(background, (largeur_jeu, hauteur_jeu))
-except pygame.error:
-    print("Erreur: Image 'fond_morpion.jpg' non trouvée. Utilisant un fond noir de secours.")
-    background = None
+try:  
+    background = pygame.image.load("fond_morpion.jpg")  
+    background = pygame.transform.scale(background, (largeur_jeu, hauteur_jeu))  
+except pygame.error:  
+    print("Erreur: Image 'fond_morpion.jpg' non trouvée. Utilisant un fond noir de secours.")  
+    background = None  
 
 
 **Essaie de charger et redimensionner une image de fond pour le plateau de jeu.
 Si l'image n'est pas trouvée, utilise un fond noir par défaut.**
 
-6. Définition des polices
+6. Définition des polices  
 
-font_accueil = pygame.font.SysFont('Gorgia', 30)
-font_titre_regles = pygame.font.SysFont('Gorgia', 45, bold=True)
-font_regles = pygame.font.SysFont('Gorgia', 25)
-font_jeu = pygame.font.SysFont('Gorgia', 80)
-font_message = pygame.font.SysFont('Gorgia', 40)
-font_bot = pygame.font.SysFont('Gorgia', 30, italic=True)
+font_accueil = pygame.font.SysFont('Gorgia', 30)   
+font_titre_regles = pygame.font.SysFont('Gorgia', 45, bold=True)    
+font_regles = pygame.font.SysFont('Gorgia', 25)  
+font_jeu = pygame.font.SysFont('Gorgia', 80)  
+font_message = pygame.font.SysFont('Gorgia', 40)  
+font_bot = pygame.font.SysFont('Gorgia', 30, italic=True)  
 
 
 **Définit différentes polices pour les textes affichés dans le jeu (accueil, règles, messages, etc.).**
 
-7. Gestion des états du jeu
+7. Gestion des états du jeu  
 
 
-ACCUEIL = 0
-REGLES = 1
-JEU = 2
-etat_actuel = ACCUEIL
+ACCUEIL = 0  
+REGLES = 1  
+JEU = 2  
+etat_actuel = ACCUEIL  
 
 
 **Définit les états possibles du jeu (accueil, règles, jeu en cours).
 etat_actuel indique l'état courant.**
 
-8. Paramètres du bot
+8. Paramètres du bot   
 
 
-TEMPS_ATTENTE_BOT = 1000  # 1000 millisecondes = 1 seconde
-temps_debut_tour_bot = 0
+TEMPS_ATTENTE_BOT = 1000  # 1000 millisecondes = 1 seconde  
+temps_debut_tour_bot = 0  
 
 
 **Définit un délai d'une seconde avant que le bot ne joue.
 temps_debut_tour_bot stocke le moment où le bot commence à réfléchir.**
 
-9. Préparation du texte d'accueil
+9. Préparation du texte d'accueil  
 
 
-message = "Bienvenus, voici un jeu de morpion contre un bot !"
-max_width_accueil = 380
-lines_accueil = []
-words_accueil = message.split()
-current_line = ""
-for word in words_accueil:
-    test_line = current_line + word + " "
-    text_surface_test = font_accueil.render(test_line, True, VIOLET)
-    if text_surface_test.get_width() <= max_width_accueil:
-        current_line = test_line
-    else:
-        lines_accueil.append(current_line)
-        current_line = word + " "
-lines_accueil.append(current_line)
+message = "Bienvenus, voici un jeu de morpion contre un bot !"  
+max_width_accueil = 380  
+lines_accueil = []  
+words_accueil = message.split()  
+current_line = ""  
+for word in words_accueil:  
+    test_line = current_line + word + " "  
+    text_surface_test = font_accueil.render(test_line, True, VIOLET)  
+    if text_surface_test.get_width() <= max_width_accueil:  
+        current_line = test_line  
+    else:  
+        lines_accueil.append(current_line)  
+        current_line = word + " "  
+lines_accueil.append(current_line)  
 
 
 **Découpe le message d'accueil en plusieurs lignes pour qu'il tienne dans une largeur maximale de 380 pixels.**
 
-10. Les règles du jeu
+10. Les règles du jeu  
 
 
-texte_instructions = [
-    "--- Les Règles du Morpion ---",
-    "",
-    "1. Le jeu se déroule sur une grille de 3x3.",
-    "2. Le **Joueur X** commence, l'ordinateur (Bot) est le **Joueur O**.",
-    "3. Les joueurs placent à tour de rôle leur symbole dans une case vide.",
-    "4. Le premier joueur à aligner trois de ses symboles",
-    "   (horizontalement, verticalement ou en diagonale) gagne la partie.",
-    "5. Si toutes les cases sont remplies et qu'aucun joueur n'a gagné,",
-    "   la partie est déclarée **Match Nul**.",
-    "",
-    "Bonne chance."
-]
+texte_instructions = [  
+    "--- Les Règles du Morpion ---",  
+    "",  
+    "1. Le jeu se déroule sur une grille de 3x3.",  
+    "2. Le **Joueur X** commence, l'ordinateur (Bot) est le **Joueur O**.",  
+    "3. Les joueurs placent à tour de rôle leur symbole dans une case vide.",  
+    "4. Le premier joueur à aligner trois de ses symboles",  
+    "   (horizontalement, verticalement ou en diagonale) gagne la partie.",  
+    "5. Si toutes les cases sont remplies et qu'aucun joueur n'a gagné,",  
+    "   la partie est déclarée **Match Nul**.",  
+    "",  
+    "Bonne chance."  
+]  
 
 
 **Stocke les règles du jeu dans une liste pour affichage.**
 
-11. Paramètres du jeu
+11. Paramètres du jeu  
 
 
-plateau = [" "] * 9
-joueur_actuel = "X"
-jeu_en_cours = True
-message_final = ""
-couleur_message = NOIR
-taille_case = largeur_jeu // 3
-lignes_grille = [
+plateau = [" "] * 9  
+joueur_actuel = "X"  
+jeu_en_cours = True  
+message_final = ""  
+couleur_message = NOIR  
+taille_case = largeur_jeu // 3  
+lignes_grille = [  
     (taille_case, 0, taille_case, hauteur_jeu),
     (2 * taille_case, 0, 2 * taille_case, hauteur_jeu),
     (0, taille_case, largeur_jeu, taille_case),
