@@ -6,116 +6,126 @@ pygame.init()
 screen = pygame.display.set_mode((1000, 600))
 pygame.display.set_caption("Morpion - Accueil")
 
+# Définition des couleurs supplémentaires pour les règles
+BLANC = (255, 255, 255)
+GRIS_CLAIR = (220, 220, 220)
+VIOLET = (148, 0, 211)
+NOIR = (0, 0, 0)
+JAUNE = (255, 255, 0) # Couleur pour le fond des règles
+
 # Charger et redimensionner l'image de fond
-background = pygame.image.load("fond_morpion.jpg")
-background = pygame.transform.scale(background, (600, 600))  # 60% de la largeur
+try:
+    background = pygame.image.load("fond_morpion.jpg")
+    background = pygame.transform.scale(background, (600, 600))  # 60% de la largeur
+except pygame.error:
+    print("Erreur: Image 'fond_morpion.jpg' non trouvée. Utilisant un fond noir.")
+    background = None
 
 # Préparation du texte avec gestion du débordement
-font = pygame.font.SysFont('Gorgia', 30)  # Taille réduite pour éviter le débordement
+font_accueil = pygame.font.SysFont('Gorgia', 30)  # Taille réduite pour éviter le débordement
+font_titre_regles = pygame.font.SysFont('Gorgia', 45, bold=True)
+font_regles = pygame.font.SysFont('Arial', 25)
+
 message = "Bienvenus, voici un jeu de morpion contre un bot !"
 
-# Découpement du texte en plusieurs lignes
+# Découpage du texte de bienvenue en plusieurs lignes (comme dans votre code initial)
 max_width = 380  # Largeur maximale pour le texte (400px - marge)
 lines = []
 words = message.split()
 current_line = ""
 for word in words:
     test_line = current_line + word + " "
-    text_surface = font.render(test_line, True, (148,0,211))
-    if text_surface.get_width() <= max_width:
+    text_surface_test = font_accueil.render(test_line, True, VIOLET)
+    if text_surface_test.get_width() <= max_width:
         current_line = test_line
     else:
         lines.append(current_line)
         current_line = word + " "
 lines.append(current_line)  # Ajouter la dernière ligne
 
-# Création d'un fond coloré pour la zone de texte 
-pygame.draw.rect(screen, (220, 220, 220), (600, 0, 400, 600))  # Fond gris clair
 
+# --- LES RÈGLES ---
+afficher_regles = False # Variable d'état pour basculer entre l'accueil et les règles
+
+texte_instructions = [
+    "--- Les Règles du Morpion ---",
+    "",
+    "1. Le jeu se déroule sur une grille de 3x3.",
+    "2. Le **Joueur X** commence, l'ordinateur (Bot) est le **Joueur O**.",
+    "3. Les joueurs placent à tour de rôle leur symbole dans une case vide.",
+    "4. Le premier joueur à aligner trois de ses symboles",
+    "   (horizontalement, verticalement ou en diagonale) gagne la partie.",
+    "5. Si toutes les cases sont remplies et qu'aucun joueur n'a gagné,",
+    "   la partie est déclarée **Match Nul**.",
+    "",
+    "Appuyez sur ESPACE pour commencer le jeu."
+]
+
+def dessiner_regles():
+    """Affiche l'écran des règles sur toute la zone de l'écran."""
+    screen.fill(JAUNE) # Fond jaune pour se démarquer
+
+    # Dessiner le cadre principal (simulé)
+    pygame.draw.rect(screen, NOIR, (50, 50, 900, 500), 5) 
+
+    # Titre
+    titre_surface = font_titre_regles.render(texte_instructions[0], True, NOIR)
+    screen.blit(titre_surface, (100, 80))
+    
+    # Texte des règles
+    y_offset = 150
+    for line in texte_instructions[1:]:
+        # Utiliser une couleur différente pour la ligne de retour
+        couleur_texte = VIOLET if "ESPACE" in line else NOIR
+        
+        text_surface = font_regles.render(line, True, couleur_texte)
+        screen.blit(text_surface, (100, y_offset))
+        y_offset += 35
+
+
+# --- BOUCLE PRINCIPALE  ---
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        
+        # Détection de la touche ESPACE
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                # Basculer l'état entre accueil et règles
+                afficher_regles = not afficher_regles 
 
-    screen.fill((255, 255, 255))  # Fond blanc
+    screen.fill(BLANC)  # Fond blanc
 
-    # Afficher l'image à gauche
-    screen.blit(background, (0, 0))
+    if afficher_regles:
+        # Afficher l'écran des règles
+        dessiner_regles()
+    else:
+        # Afficher l'écran d'accueil original
+        
+        # Afficher l'image à gauche
+        if background:
+            screen.blit(background, (0, 0))
+        else:
+            pygame.draw.rect(screen, NOIR, (0, 0, 600, 600)) # Fond noir de secours
 
-    # Afficher le texte à droite, ligne par ligne
-    y_offset = 200  # Position verticale de départ
-    for line in lines:
-        text_surface = font.render(line, True, (148,0,211))
-        screen.blit(text_surface, (620, y_offset))  # 620 = 600 + marge de 20px
-        y_offset += 30  # Espacement entre les lignes
+        # Création d'un fond coloré pour la zone de texte à droite
+        pygame.draw.rect(screen, GRIS_CLAIR, (600, 0, 400, 600))  # Fond gris clair
+
+        # Afficher le texte à droite, ligne par ligne
+        y_offset = 200  # Position verticale de départ
+        for line in lines:
+            text_surface = font_accueil.render(line, True, VIOLET)
+            screen.blit(text_surface, (620, y_offset))  # 620 = 600 + marge de 20px
+            y_offset += 30  # Espacement entre les lignes
+            
+        # Ajouter une instruction pour afficher les règles
+        instruction_regle = font_regles.render("Appuyez sur ESPACE pour les règles", True, NOIR)
+        screen.blit(instruction_regle, (620, 550))
+
 
     pygame.display.flip()
 
 pygame.quit()
-
-# Définition du bouton
-bouton_rect = pygame.Rect(650, 450, 300, 70)
-texte_bouton = font_bouton.render("Commencer le jeu", True, BLANC)
-texte_bouton_rect = texte_bouton.get_rect(center=bouton_rect.center)
-
-
-# --- Paramètres du Jeu (Morpion) ---
-taille_case = hauteur_ecran // 3 # Le plateau utilise seulement 600x600
-lignes_grille = [
-    (taille_case, 0, taille_case, hauteur_ecran),
-    (2 * taille_case, 0, 2 * taille_case, hauteur_ecran),
-    (0, taille_case, largeur_ecran, taille_case),
-    (0, 2 * taille_case, largeur_ecran, 2 * taille_case)
-]
-# Réinitialisation des variables du jeu
-def reinitialiser_jeu():
-    global plateau, joueur_actuel, message_final, etat_actuel
-    plateau = [" "] * 9
-    joueur_actuel = "X"
-    message_final = ""
-    etat_actuel = JEU_EN_COURS # Passer à l'état Jeu
-
-
-# --- Fonctions du Jeu ---
-
-def dessiner_plateau():
-    """Dessine la grille et les symboles X/O sur l'écran Pygame."""
-    # Le plateau prend les 600x600 premiers pixels
-    plateau_zone = pygame.Rect(0, 0, hauteur_ecran, hauteur_ecran)
-    screen.fill(GRIS_CLAIR, plateau_zone)
-    
-    # Dessiner la grille
-    for x1, y1, x2, y2 in [
-        (taille_case, 0, taille_case, hauteur_ecran),
-        (2 * taille_case, 0, 2 * taille_case, hauteur_ecran),
-        (0, taille_case, hauteur_ecran, taille_case), # Limité à hauteur_ecran (600) en largeur
-        (0, 2 * taille_case, hauteur_ecran, 2 * taille_case)
-    ]:
-        pygame.draw.line(screen, NOIR, (x1, y1), (x2, y2), 5)
-
-    # Dessiner les symboles
-    for i in range(9):
-        symbole = plateau[i]
-        if symbole != " ":
-            col = i % 3
-            ligne = i // 3
-            centre_x = col * taille_case + taille_case // 2
-            centre_y = ligne * taille_case + taille_case // 2
-
-            couleur = ROUGE if symbole == "X" else VERT
-            texte_surface = font_jeu.render(symbole, True, couleur)
-            texte_rect = texte_surface.get_rect(center=(centre_x, centre_y))
-            screen.blit(texte_surface, texte_rect)
-
-def dessiner_accueil():
-    """Affiche l'écran d'accueil avec le fond et le message."""
-    screen.fill(BLANC)
-
-    # Afficher l'image à gauche (600x600)
-    if background:
-        screen.blit(background, (0, 0))
-    else:
-        pygame.draw.rect(screen, NOIR, (0, 0, 600, 600)) # Fond noir de secours
-
-    # Création d'un fond coloré pour la zone de texte à droite (40
+sys.exit() 
