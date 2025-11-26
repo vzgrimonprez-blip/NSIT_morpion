@@ -5,6 +5,5 @@ Le jeu se termine que dans trois cas:
 - quand c'est le bot qui gagne
 - quand c'est le joueur qui gagne
 - ou quand le plateau est complet et que aucun de nous n'as gagné.
-- 
 
 ![Illustration du jeu](fond_morpion.jpg)
