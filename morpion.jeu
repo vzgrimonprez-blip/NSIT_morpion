@@ -138,17 +138,17 @@ while running:
     # Affichage
     dessiner_plateau()
     
-    # Affichage du message de statut/victoire
+    # Affichage du message de victoire
     if not jeu_en_cours:
         gagnant = verifier_victoire(plateau) # Vérifier à nouveau pour s'assurer
         if gagnant == "X":
-            message_final = "🎉 Félicitations, tu as gagné !"
+            message_final = "Félicitations, tu as gagné !"
             couleur_message = ROUGE
         elif gagnant == "O":
-            message_final = "🤖 Le bot a gagné !"
+            message_final = "Le bot a gagné !"
             couleur_message = VERT
         elif gagnant == "NUL":
-            message_final = "🤝 Match nul !"
+            message_final = "Match nul !"
             couleur_message = VIOLET
             
         # Afficher le message de fin de partie au centre de l'écran
