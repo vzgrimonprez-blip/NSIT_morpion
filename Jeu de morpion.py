@@ -73,7 +73,52 @@ while running:
 
     
     elif etat == 2:  # Règle du jeu
-        pass
+        # Définition des couleurs supplémentaires pour les règles
+        BLANC = (255, 255, 255)
+        GRIS_CLAIR = (220, 220, 220)
+        VIOLET = (148, 0, 211)
+        NOIR = (0, 0, 0)
+        JAUNE = (255, 255, 0)  # Couleur pour le fond des règles
+
+        # Préparation des polices
+        font_titre_regles = pygame.font.SysFont('Gorgia', 45, bold=True)
+        font_regles = pygame.font.SysFont('Arial', 25)
+
+        # Texte des règles
+        texte_instructions = [
+            "--- Les Règles du Morpion ---",
+            "",
+            "1. Le jeu se déroule sur une grille de 3x3.",
+            "2. Le **Joueur X** commence, l'ordinateur (Bot) est le **Joueur O**.",
+            "3. Les joueurs placent à tour de rôle leur symbole dans une case vide.",
+            "4. Le premier joueur à aligner trois de ses symboles",
+            "   (horizontalement, verticalement ou en diagonale) gagne la partie.",
+            "5. Si toutes les cases sont remplies et qu'aucun joueur n'a gagné,",
+            "   la partie est déclarée **Match Nul**.",
+            "",
+            "Appuyez sur ESPACE pour revenir à l'accueil."
+        ]
+
+        def dessiner_regles():
+            """Affiche l'écran des règles sur toute la zone de l'écran."""
+            screen.fill(JAUNE)  # Fond jaune pour se démarquer
+            # Dessiner le cadre principal
+            pygame.draw.rect(screen, NOIR, (50, 50, 900, 500), 5)
+            # Titre
+            titre_surface = font_titre_regles.render(texte_instructions[0], True, NOIR)
+            screen.blit(titre_surface, (100, 80))
+
+            # Texte des règles
+            y_offset = 150
+            for line in texte_instructions[1:]:
+                couleur_texte = VIOLET if "ESPACE" in line else NOIR
+                text_surface = font_regles.render(line, True, couleur_texte)
+                screen.blit(text_surface, (100, y_offset))
+                y_offset += 35
+
+        # Afficher les règles
+        dessiner_regles()
+
     
     else:  # 3 : Le jeu
         screen.fill((255, 255, 255))  # Fond blanc
@@ -144,4 +189,5 @@ def morpion():
     print("Match nul !")
 # Lancer le jeu après la fermeture de la fenêtre
 morpion()                                                                                                                                                    
+
 
