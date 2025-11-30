@@ -20,9 +20,9 @@ import pygame
 import sys  
 
 
-random : Utilisé pour générer des coups aléatoires pour le bot.  
+*random : Utilisé pour générer des coups aléatoires pour le bot.  
 pygame : Bibliothèque pour créer des jeux en Python (gestion des fenêtres, graphismes, événements, etc.).  
-sys : Permet de quitter proprement le programme avec sys.exit().  
+sys : Permet de quitter proprement le programme avec sys.exit().  *
 
 2. Initialisation de Pygame  
 
@@ -42,9 +42,9 @@ screen = pygame.display.set_mode((largeur_fenetre, hauteur_fenetre))
 pygame.display.set_caption("Morpion - Accueil & Jeu")  
 
 
-Définit les dimensions de la fenêtre principale et de la zone de jeu.  
+*Définit les dimensions de la fenêtre principale et de la zone de jeu.  
 Crée la fenêtre avec pygame.display.set_mode().  
-Définit le titre de la fenêtre.  
+Définit le titre de la fenêtre.  *
 
 4. Définition des couleurs  
 
@@ -58,7 +58,7 @@ VERT = (0, 150, 0)
 ROUGE = (200, 0, 0)  
 
 
-Définit des constantes pour les couleurs utilisées dans le jeu (format RGB).  
+*Définit des constantes pour les couleurs utilisées dans le jeu (format RGB).  *
 
 5. Chargement de l'image de fond  
 
@@ -71,8 +71,8 @@ except pygame.error:
     background = None  
 
 
-Essaie de charger une image de fond pour l'écran d'accueil.  
-Si l'image n'est pas trouvée, utilise un fond noir par défaut.  
+*Essaie de charger une image de fond pour l'écran d'accueil.  
+Si l'image n'est pas trouvée, utilise un fond noir par défaut.  *
 
 6. Définition des polices  
 
@@ -86,7 +86,7 @@ font_bot = pygame.font.SysFont('Gorgia', 30, italic=True)
 font_score = pygame.font.SysFont('Gorgia', 30)  
 
 
-Définit différentes polices pour les textes affichés dans le jeu (accueil, règles, jeu, messages, etc.).  
+*Définit différentes polices pour les textes affichés dans le jeu (accueil, règles, jeu, messages, etc.).  *
 
 7. Gestion des états du jeu  
 
@@ -96,8 +96,8 @@ JEU = 2
 etat_actuel = ACCUEIL  
 
 
-Définit les états possibles du jeu (accueil, règles, jeu).  
-etat_actuel indique l'état courant.  
+*Définit les états possibles du jeu (accueil, règles, jeu).  
+etat_actuel indique l'état courant.  *
 
 8. Paramètres du bot
 
@@ -105,8 +105,8 @@ TEMPS_ATTENTE_BOT = 1000
 temps_debut_tour_bot = 0  
 
 
-TEMPS_ATTENTE_BOT : Délai en millisecondes avant que le bot ne joue.  
-temps_debut_tour_bot : Stocke le moment où le bot commence à réfléchir.  
+*TEMPS_ATTENTE_BOT : Délai en millisecondes avant que le bot ne joue.  
+temps_debut_tour_bot : Stocke le moment où le bot commence à réfléchir.  *  
 
 9. Préparation du texte d'accueil  
 
@@ -126,7 +126,7 @@ for word in words_accueil:
 lines_accueil.append(current_line)  
 
 
-Découpe le message d'accueil en plusieurs lignes pour éviter le débordement à l'écran.  
+*Découpe le message d'accueil en plusieurs lignes pour éviter le débordement à l'écran.  *
 
 10. Les règles du jeu  
 
@@ -145,7 +145,7 @@ texte_instructions = [
 ]  
 
 
-Liste des règles du jeu affichées à l'écran "Règles".  
+*Liste des règles du jeu affichées à l'écran "Règles".  *
 
 11. Paramètres du jeu  
 
@@ -163,11 +163,11 @@ lignes_grille = [
 ]  
 
 
-plateau : Liste représentant les 9 cases du morpion.  
+*plateau : Liste représentant les 9 cases du morpion.  
 joueur_actuel : Indique le joueur actuel ("X" ou "O").  
 jeu_en_cours : Booléen indiquant si la partie est en cours.  
 taille_case : Taille d'une case de la grille.  
-lignes_grille : Coordonnées des lignes de la grille.  
+lignes_grille : Coordonnées des lignes de la grille.  *
 
 12. Compteurs de score  
 
@@ -176,7 +176,7 @@ score_O = 0
 score_nuls = 0  
 
 
-Compteurs pour les victoires de X, O et les matchs nuls.  
+Compteurs pour les victoires de X, O et les matchs nuls.  *
 
 13. Fonctions du jeu  
 a. Réinitialiser le jeu  
@@ -191,7 +191,8 @@ def reinitialiser_jeu():
     temps_debut_tour_bot = 0  
 
 
-Réinitialise le plateau, le joueur actuel, l'état du jeu et le message final.  
+*Réinitialise le plateau, le joueur actuel, l'état du jeu et le message final.  *
+
 b. Vérifier la victoire  
 
 def verifier_victoire(plateau):  
@@ -208,7 +209,8 @@ def verifier_victoire(plateau):
     return None  
 
 
-Vérifie si un joueur a gagné ou si la partie est nulle.  
+*Vérifie si un joueur a gagné ou si la partie est nulle.  *
+
 c. Coup du bot  
 
 def coup_bot(plateau):  
@@ -218,7 +220,8 @@ def coup_bot(plateau):
     return -1  
 
 
-Le bot choisit une case disponible aléatoirement.  
+*Le bot choisit une case disponible aléatoirement.  *
+
 d. Gérer le clic de la souris  
 
 def gerer_clic(pos, joueur_actuel, plateau):  
@@ -234,7 +237,7 @@ def gerer_clic(pos, joueur_actuel, plateau):
     return False, -1  
 
 
-Gère le clic de l'utilisateur et met à jour le plateau si le clic est valide.  
+*Gère le clic de l'utilisateur et met à jour le plateau si le clic est valide.  *
 
 14. Fonctions d'affichage  
 a. Dessiner l'écran d'accueil  
@@ -255,7 +258,8 @@ def dessiner_accueil():
     screen.blit(instruction_regle, (largeur_jeu + 20, 500))  
 
 
-Affiche l'écran d'accueil avec le message de bienvenue et les instructions.  
+*Affiche l'écran d'accueil avec le message de bienvenue et les instructions.  *
+
 b. Dessiner les règles  
 
 def dessiner_regles():  
@@ -273,7 +277,8 @@ def dessiner_regles():
     screen.blit(instruction_retour, (100, 520))  
 
 
-Affiche l'écran des règles avec le titre et les instructions.  
+*Affiche l'écran des règles avec le titre et les instructions.  *
+
 c. Dessiner le jeu  
 
 def dessiner_jeu(current_time):  
@@ -325,7 +330,7 @@ def dessiner_jeu(current_time):
         screen.blit(texte_bouton, texte_bouton_rect)  
 
 
-Affiche la grille de jeu, les scores, le tour actuel, les messages du bot et le message final.  
+*Affiche la grille de jeu, les scores, le tour actuel, les messages du bot et le message final.  *
 
 15. Boucle principale du jeu  
 
@@ -398,9 +403,9 @@ while running:
     pygame.display.flip()  
 
 
-Gère les événements (clics, touches) et met à jour l'affichage en fonction de l'état du jeu.  
+*Gère les événements (clics, touches) et met à jour l'affichage en fonction de l'état du jeu.  
 Si le joueur actuel est le bot, il joue après un délai.  
-Vérifie si la partie est terminée et met à jour le message final et les scores.  
+Vérifie si la partie est terminée et met à jour le message final et les scores.  *
 
 16. Fermeture du jeu  
 
@@ -408,7 +413,7 @@ pygame.quit()
 sys.exit()  
 
 
-Quitte Pygame et ferme le programme proprement.  
+*Quitte Pygame et ferme le programme proprement.  *
 
 
 
