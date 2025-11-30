@@ -14,7 +14,7 @@ Je lui ai demadé de m'afficher l'image a gauche et le texte a droite mais apres
 J'ai donc du lui demander de me regler se probleme.*** 
 
 **Voici l'explication de mon code ligne par ligne:**  
-###1. Importation des bibliothèques###  
+### 1. Importation des bibliothèques ###  
 import random  
 import pygame  
 import sys  
