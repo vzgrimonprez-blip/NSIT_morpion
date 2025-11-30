@@ -24,7 +24,7 @@ import sys
 pygame : Bibliothèque pour créer des jeux en Python (gestion des fenêtres, graphismes, événements, etc.).  
 sys : Permet de quitter proprement le programme avec sys.exit().*  
 
-2. Initialisation de Pygame  
+### 2. Initialisation de Pygame ###  
 
 
 pygame.init()  
@@ -32,7 +32,7 @@ pygame.init()
 
 Initialise tous les modules de Pygame.  
 
-3. Paramètres de la fenêtre  
+### 3. Paramètres de la fenêtre ###  
 
 largeur_fenetre = 1000  
 hauteur_fenetre = 600  
@@ -46,7 +46,7 @@ pygame.display.set_caption("Morpion - Accueil & Jeu")
 Crée la fenêtre avec pygame.display.set_mode().  
 Définit le titre de la fenêtre.*  
 
-4. Définition des couleurs  
+### 4. Définition des couleurs ###  
 
 
 BLANC = (255, 255, 255)  
@@ -60,7 +60,7 @@ ROUGE = (200, 0, 0)
 
 *Définit des constantes pour les couleurs utilisées dans le jeu (format RGB).*  
 
-5. Chargement de l'image de fond  
+### 5. Chargement de l'image de fond ###  
 
 
 try:  
@@ -74,7 +74,7 @@ except pygame.error:
 *Essaie de charger une image de fond pour l'écran d'accueil.  
 Si l'image n'est pas trouvée, utilise un fond noir par défaut.*  
 
-6. Définition des polices  
+### 6. Définition des polices ###  
 
 
 font_accueil = pygame.font.SysFont('Gorgia', 30)  
@@ -88,7 +88,7 @@ font_score = pygame.font.SysFont('Gorgia', 30)
 
 *Définit différentes polices pour les textes affichés dans le jeu (accueil, règles, jeu, messages, etc.).*  
 
-7. Gestion des états du jeu  
+### 7. Gestion des états du jeu ###  
 
 ACCUEIL = 0  
 REGLES = 1  
@@ -99,7 +99,7 @@ etat_actuel = ACCUEIL
 *Définit les états possibles du jeu (accueil, règles, jeu).  
 etat_actuel indique l'état courant.*  
 
-8. Paramètres du bot
+### 8. Paramètres du bot ###  
 
 TEMPS_ATTENTE_BOT = 1000  
 temps_debut_tour_bot = 0  
@@ -108,7 +108,7 @@ temps_debut_tour_bot = 0
 *TEMPS_ATTENTE_BOT : Délai en millisecondes avant que le bot ne joue.  
 temps_debut_tour_bot : Stocke le moment où le bot commence à réfléchir.*    
 
-9. Préparation du texte d'accueil  
+### 9. Préparation du texte d'accueil ###  
 
 message = "Bienvenus, voici un jeu de morpion contre un bot !"  
 max_width_accueil = 380  
@@ -128,7 +128,7 @@ lines_accueil.append(current_line)
 
 *Découpe le message d'accueil en plusieurs lignes pour éviter le débordement à l'écran.*  
 
-10. Les règles du jeu  
+### 10. Les règles du jeu ###  
 
 texte_instructions = [  
     "--- Les Règles du Morpion ---",  
@@ -147,7 +147,7 @@ texte_instructions = [
 
 *Liste des règles du jeu affichées à l'écran "Règles".*  
 
-11. Paramètres du jeu  
+### 11. Paramètres du jeu ###  
 
 plateau = [" "] * 9  
 joueur_actuel = "X"  
@@ -169,7 +169,7 @@ jeu_en_cours : Booléen indiquant si la partie est en cours.
 taille_case : Taille d'une case de la grille.  
 lignes_grille : Coordonnées des lignes de la grille.*  
 
-12. Compteurs de score  
+### 12. Compteurs de score ###  
 
 score_X = 0  
 score_O = 0  
@@ -178,7 +178,7 @@ score_nuls = 0
 
 *Compteurs pour les victoires de X, O et les matchs nuls.*  
 
-13. Fonctions du jeu  
+### 13. Fonctions du jeu ###  
 a. Réinitialiser le jeu  
 
 
@@ -239,7 +239,7 @@ def gerer_clic(pos, joueur_actuel, plateau):
 
 *Gère le clic de l'utilisateur et met à jour le plateau si le clic est valide.*  
 
-14. Fonctions d'affichage  
+### 14. Fonctions d'affichage ###  
 a. Dessiner l'écran d'accueil  
 
 def dessiner_accueil():  
@@ -332,7 +332,7 @@ def dessiner_jeu(current_time):
 
 *Affiche la grille de jeu, les scores, le tour actuel, les messages du bot et le message final.*  
 
-15. Boucle principale du jeu  
+### 15. Boucle principale du jeu ###  
 
 running = True  
 while running:  
@@ -407,7 +407,7 @@ while running:
 Si le joueur actuel est le bot, il joue après un délai.  
 Vérifie si la partie est terminée et met à jour le message final et les scores.*  
 
-16. Fermeture du jeu  
+### 16. Fermeture du jeu ###  
 
 pygame.quit()  
 sys.exit()  
