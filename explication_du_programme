@@ -1,0 +1,498 @@
+Chargement de l'Image de Fond
+try:
+    background = pygame.image.load("fond_morpion.jpg")
+    background = pygame.transform.scale(background, (largeur_jeu, hauteur_jeu))
+except pygame.error:
+    print("Erreur: Image 'fond_morpion.jpg' non trouvée. Utilisant un fond noir de secours.")
+    background = None
+•	Rôle :
+o	Essaie de charger une image de fond (fond_morpion.jpg) pour l'écran d'accueil.
+o	Si l'image n'est pas trouvée, un message d'erreur est affiché et background est défini à None.
+•	pygame.image.load("fond_morpion.jpg") :
+o	Charge l'image depuis le fichier spécifié.
+•	pygame.transform.scale(background, (largeur_jeu, hauteur_jeu)) :
+o	Redimensionne l'image pour qu'elle corresponde aux dimensions de la zone de jeu (600x600).
+•	except pygame.error: :
+o	Capture l'erreur si le fichier n'existe pas et utilise un fond noir à la place.
+
+Définition des Polices
+font_accueil = pygame.font.SysFont('Gorgia', 30)
+font_titre_regles = pygame.font.SysFont('Gorgia', 45, bold=True)
+font_regles = pygame.font.SysFont('Gorgia', 25)
+font_jeu = pygame.font.SysFont('Gorgia', 80)
+font_message = pygame.font.SysFont('Gorgia', 40)
+font_bot = pygame.font.SysFont('Gorgia', 30, italic=True)
+font_score = pygame.font.SysFont('Gorgia', 30)
+•	Rôle :
+o	Définit différentes polices pour afficher du texte dans le jeu.
+o	SysFont charge une police système. Si la police spécifiée n'existe pas, Pygame utilise une police par défaut.
+•	Paramètres :
+o	Nom de la police : 'Gorgia' (peut être remplacé par une police système existante comme 'Arial').
+o	Taille : Taille en pixels.
+o	Options : bold=True pour du texte en gras, italic=True pour de l'italique.
+•	Utilisation dans le code :
+o	font_accueil : Texte de l'écran d'accueil.
+o	font_titre_regles : Titre des règles.
+o	font_regles : Texte des règles.
+o	font_jeu : Symboles "X" et "O" sur la grille.
+o	font_message : Messages de fin de partie.
+o	font_bot : Message "Le bot réfléchit...".
+o	font_score : Affichage des scores.
+
+Gestion des États du Jeu
+ACCUEIL = 0
+REGLES = 1
+JEU = 2
+etat_actuel = ACCUEIL
+•	Rôle :
+o	Définit les états possibles du jeu : 
+	ACCUEIL : Écran de bienvenue.
+	REGLES : Écran affichant les règles.
+	JEU : Écran de jeu.
+o	etat_actuel stocke l'état actuel du jeu (initialisé à ACCUEIL).
+•	Pourquoi ? :
+o	Permet de structurer le jeu en plusieurs écrans et de savoir quel écran afficher/mettre à jour.
+Paramètres du Bot
+TEMPS_ATTENTE_BOT = 1000
+temps_debut_tour_bot = 0
+•	TEMPS_ATTENTE_BOT :
+o	Rôle : Délai en millisecondes avant que le bot ne joue (1000 ms = 1 seconde).
+o	Pourquoi ? : Donne l'impression que le bot "réfléchit".
+•	temps_debut_tour_bot :
+o	Rôle : Stocke le moment (en millisecondes) où le bot commence à "réfléchir".
+o	Utilisation : Permet de calculer si le délai est écoulé et si le bot peut jouer.
+Préparation du Texte d'Accueil
+message = "Bienvenus, voici un jeu de morpion contre un bot !"
+max_width_accueil = 380
+lines_accueil = []
+words_accueil = message.split()
+current_line = ""
+for word in words_accueil:
+    test_line = current_line + word + " "
+    text_surface_test = font_accueil.render(test_line, True, VIOLET)
+    if text_surface_test.get_width() <= max_width_accueil:
+        current_line = test_line
+    else:
+        lines_accueil.append(current_line)
+        current_line = word + " "
+lines_accueil.append(current_line)
+•	Rôle :
+o	Découpe le message d'accueil en plusieurs lignes pour qu'il tienne dans une zone de 380 pixels de large.
+•	Logique :
+1.	message.split() : Découpe le message en une liste de mots.
+2.	Boucle sur chaque mot : 
+	test_line : Construit une ligne en ajoutant le mot courant.
+	font_accueil.render(test_line, True, VIOLET) : Crée une surface de texte avec la ligne test.
+	text_surface_test.get_width() : Récupère la largeur en pixels de cette surface.
+	Si la largeur dépasse max_width_accueil, la ligne est stockée dans lines_accueil et une nouvelle ligne commence.
+3.	lines_accueil.append(current_line) : Ajoute la dernière ligne à la liste.
+•	Résultat :
+o	lines_accueil est une liste de chaînes de caractères, chacune représentant une ligne du message d'accueil.
+Les Règles du Jeu
+texte_instructions = [
+    "--- Les Règles du Morpion ---",
+    "",
+    "1. Le jeu se déroule sur une grille de 3x3.",
+    "2. Le **Joueur X** commence, l'ordinateur (Bot) est le **Joueur O**.",
+    "3. Les joueurs placent à tour de rôle leur symbole dans une case vide.",
+    "4. Le premier joueur à aligner trois de ses symboles",
+    "   (horizontalement, verticalement ou en diagonale) gagne la partie.",
+    "5. Si toutes les cases sont remplies et qu'aucun joueur n'a gagné,",
+    "   la partie est déclarée **Match Nul**.",
+    "",
+    "Bonne chance."
+]
+•	Rôle : 
+o	Liste des règles affichées à l'écran "Règles".
+o	Chaque élément de la liste est une ligne de texte.
+Paramètres du Jeu
+a. Plateau et Joueur Actuel
+plateau = [" "] * 9
+joueur_actuel = "X"
+jeu_en_cours = True
+message_final = ""
+couleur_message = NOIR
+•	plateau :
+o	Rôle : Liste de 9 éléments représentant les cases du morpion.
+o	Valeurs possibles : 
+	" " (espace) : case vide.
+	"X" ou "O" : case occupée par le joueur ou le bot.
+•	joueur_actuel :
+o	Rôle : Indique à qui c'est le tour ("X" pour le joueur, "O" pour le bot).
+o	Initialisation : Le joueur "X" commence toujours.
+•	jeu_en_cours :
+o	Rôle : Booléen indiquant si la partie est en cours (True) ou terminée (False).
+•	message_final :
+o	Rôle : Stocke le message affiché à la fin de la partie (ex: "Félicitations, tu as gagné !").
+•	couleur_message :
+o	Rôle : Couleur du message final (noir par défaut, mais change selon le gagnant).
+b. Taille des Cases et Lignes de la Grille
+taille_case = largeur_jeu // 3
+lignes_grille = [
+    (taille_case, 0, taille_case, hauteur_jeu),
+    (2 * taille_case, 0, 2 * taille_case, hauteur_jeu),
+    (0, taille_case, largeur_jeu, taille_case),
+    (0, 2 * taille_case, largeur_jeu, 2 * taille_case)
+]
+•	taille_case :
+o	Rôle : Largeur et hauteur d'une case de la grille (600 // 3 = 200 pixels).
+•	lignes_grille :
+o	Rôle : Liste de tuples définissant les coordonnées des lignes de la grille.
+o	Structure d'un tuple : (x1, y1, x2, y2) où (x1, y1) est le point de départ et (x2, y2) le point d'arrivée.
+o	Détail : 
+	Les deux premiers tuples sont les lignes verticales.
+	Les deux suivants sont les lignes horizontales.
+
+c. Scores
+score_X = 0
+score_O = 0
+score_nuls = 0
+•	Rôle : 
+o	Compteurs pour les victoires du joueur "X", du bot "O", et les matchs nuls.
+Fonctions du Jeu
+a. Réinitialiser le Jeu
+def reinitialiser_jeu():
+    global plateau, joueur_actuel, jeu_en_cours, message_final, temps_debut_tour_bot
+    plateau = [" "] * 9
+    joueur_actuel = "X"
+    jeu_en_cours = True
+    message_final = ""
+    temps_debut_tour_bot = 0
+•	Rôle :
+o	Remet le jeu à zéro pour une nouvelle partie.
+•	Actions :
+o	Réinitialise le plateau (toutes les cases deviennent vides).
+o	Le joueur actuel redevient "X".
+o	La partie est en cours.
+o	Efface le message final.
+o	Réinitialise le temps de début du tour du bot.
+•	global :
+o	Indique que les variables modifiées sont celles définies en dehors de la fonction.
+
+b. Vérifier la Victoire
+def verifier_victoire(plateau):
+    victoires = [
+        (0, 1, 2), (3, 4, 5), (6, 7, 8),  # Lignes
+        (0, 3, 6), (1, 4, 7), (2, 5, 8),  # Colonnes
+        (0, 4, 8), (2, 4, 6)              # Diagonales
+    ]
+    for a, b, c in victoires:
+        if plateau[a] == plateau[b] == plateau[c] != " ":
+            return plateau[a]
+    if " " not in plateau:
+        return "NUL"
+    return None
+•	Rôle :
+o	Vérifie si un joueur a gagné ou si la partie est nulle.
+•	Logique :
+1.	victoires : Liste de tuples représentant les combinaisons gagnantes (lignes, colonnes, diagonales).
+2.	Boucle sur chaque combinaison : 
+	Si les trois cases d'une combinaison sont égales et non vides, retourne le symbole gagnant ("X" ou "O").
+3.	Si le plateau est plein (" " not in plateau) et qu'il n'y a pas de gagnant, retourne "NUL".
+4.	Sinon, retourne None (la partie continue).
+
+c. Coup du Bot
+def coup_bot(plateau):
+    positions_disponibles = [i for i, val in enumerate(plateau) if val == " "]
+    if positions_disponibles:
+        return random.choice(positions_disponibles)
+    return -1
+•	Rôle :
+o	Le bot choisit une case vide aléatoirement.
+•	Logique :
+1.	positions_disponibles : Liste des indices des cases vides (où plateau[i] == " ").
+2.	Si des cases sont disponibles : 
+	random.choice(positions_disponibles) : Choisit un indice aléatoirement.
+3.	Sinon, retourne -1 (aucune case disponible).
+
+d. Gérer le Clic de la Souris
+def gerer_clic(pos, joueur_actuel, plateau):
+    x, y = pos
+    if x >= largeur_jeu:
+        return False, -1
+    col = x // taille_case
+    ligne = y // taille_case
+    position = ligne * 3 + col
+    if 0 <= position < 9 and plateau[position] == " ":
+        plateau[position] = joueur_actuel
+        return True, position
+    return False, -1
+•	Rôle :
+o	Traite le clic de l'utilisateur et met à jour le plateau si le clic est valide.
+•	Logique :
+1.	x, y = pos : Récupère les coordonnées du clic.
+2.	Vérifie si le clic est dans la zone de jeu (x < largeur_jeu).
+3.	Calcule la colonne et la ligne : 
+	col = x // taille_case : Divise la coordonnée x par la taille d'une case pour obtenir la colonne.
+	ligne = y // taille_case : Idem pour la ligne.
+4.	Calcule la position dans le plateau (de 0 à 8) : 
+	position = ligne * 3 + col : Convertit la ligne et la colonne en un indice linéaire.
+5.	Vérifie si la case est vide : 
+	Si oui, la remplit avec le symbole du joueur actuel et retourne True.
+	Sinon, retourne False.
+Fonctions d'Affichage
+a. Dessiner l'Écran d'Accueil
+def dessiner_accueil():
+    screen.fill(BLANC)
+    if background:
+        screen.blit(background, (0, 0))
+    else:
+        pygame.draw.rect(screen, NOIR, (0, 0, 600, 600))
+    pygame.draw.rect(screen, GRIS_CLAIR, (largeur_jeu, 0, largeur_fenetre - largeur_jeu, hauteur_fenetre))
+    y_offset = 200
+    for line in lines_accueil:
+        text_surface = font_accueil.render(line, True, VIOLET)
+        screen.blit(text_surface, (largeur_jeu + 20, y_offset))
+        y_offset += 30
+    instruction_regle = font_regles.render("Appuyez sur R pour lire les règles", True, NOIR)
+    screen.blit(instruction_regle, (largeur_jeu + 20, 500))
+•	Rôle :
+o	Affiche l'écran d'accueil avec le message de bienvenue et les instructions.
+•	Actions :
+1.	screen.fill(BLANC) : Remplit l'écran en blanc.
+2.	Affiche l'image de fond si elle existe, sinon un rectangle noir.
+3.	Dessine la zone latérale en gris clair.
+4.	Affiche le texte d'accueil ligne par ligne.
+5.	Affiche l'instruction pour accéder aux règles.
+
+b. Dessiner les Règles
+def dessiner_regles():
+    screen.fill(JAUNE)
+    pygame.draw.rect(screen, NOIR, (50, 50, 900, 500), 5)
+    titre_surface = font_titre_regles.render(texte_instructions[0], True, NOIR)
+    screen.blit(titre_surface, (100, 80))
+    y_offset = 150
+    for line in texte_instructions[1:]:
+        couleur_texte = VIOLET if "COMMENCER" in line else NOIR
+        text_surface = font_regles.render(line, True, couleur_texte)
+        screen.blit(text_surface, (100, y_offset))
+        y_offset += 35
+    instruction_retour = font_regles.render("Appuyez sur ESPACE pour COMMENCER le jeu", True, VIOLET)
+    screen.blit(instruction_retour, (100, 520))
+•	Rôle :
+o	Affiche l'écran des règles avec le titre et les instructions.
+•	Actions :
+1.	screen.fill(JAUNE) : Remplit l'écran en jaune.
+2.	Dessine un rectangle noir pour encadrer les règles.
+3.	Affiche le titre des règles.
+4.	Affiche chaque ligne des règles, avec une couleur violette pour la ligne contenant "COMMENCER".
+5.	Affiche l'instruction pour commencer le jeu.
+c. Dessiner le Jeu
+def dessiner_jeu(current_time):
+    plateau_zone = pygame.Rect(0, 0, largeur_jeu, hauteur_jeu)
+    screen.fill(GRIS_CLAIR, plateau_zone)
+    for x1, y1, x2, y2 in lignes_grille:
+        pygame.draw.line(screen, NOIR, (x1, y1), (x2, y2), 5)
+    for i in range(9):
+        symbole = plateau[i]
+        if symbole != " ":
+            col = i % 3
+            ligne = i // 3
+            centre_x = col * taille_case + taille_case // 2
+            centre_y = ligne * taille_case + taille_case // 2
+            couleur = ROUGE if symbole == "X" else VERT
+            texte_surface = font_jeu.render(symbole, True, couleur)
+            texte_rect = texte_surface.get_rect(center=(centre_x, centre_y))
+            screen.blit(texte_surface, texte_rect)
+    statut_zone = pygame.Rect(largeur_jeu, 0, largeur_fenetre - largeur_jeu, hauteur_fenetre)
+    screen.fill(BLANC, statut_zone)
+    # Affichage du score
+    score_surface_X = font_score.render(f"X: {score_X}", True, ROUGE)
+    score_surface_O = font_score.render(f"O: {score_O}", True, VERT)
+    score_surface_nuls = font_score.render(f"Nuls: {score_nuls}", True, VIOLET)
+    screen.blit(score_surface_X, (largeur_jeu + 20, 20))
+    screen.blit(score_surface_O, (largeur_jeu + 120, 20))
+    screen.blit(score_surface_nuls, (largeur_jeu + 220, 20))
+    if jeu_en_cours:
+        tour_msg = f"Tour du joueur: {joueur_actuel}"
+        couleur_tour = ROUGE if joueur_actuel == "X" else VERT
+    else:
+        tour_msg = "Partie terminée !"
+        couleur_tour = NOIR
+    tour_surface = font_message.render(tour_msg, True, couleur_tour)
+    screen.blit(tour_surface, (largeur_jeu + 20, 80))
+    if jeu_en_cours and joueur_actuel == "O":
+        if (current_time // 500) % 2 == 0:
+            bot_msg = "Le bot réfléchit..."
+            bot_surface = font_bot.render(bot_msg, True, VERT)
+            screen.blit(bot_surface, (largeur_jeu + 20, 140))
+    if message_final:
+        message_surface = font_message.render(message_final, True, couleur_message, BLANC)
+        message_rect = message_surface.get_rect(center=(largeur_jeu // 2, hauteur_jeu // 2))
+        screen.blit(message_surface, message_rect)
+        bouton_rect = pygame.Rect(largeur_jeu + 50, hauteur_fenetre - 100, 300, 70)
+        pygame.draw.rect(screen, VIOLET, bouton_rect)
+        texte_bouton = font_regles.render("Rejouer (R)", True, BLANC)
+        texte_bouton_rect = texte_bouton.get_rect(center=bouton_rect.center)
+        screen.blit(texte_bouton, texte_bouton_rect)
+•	Rôle :
+o	Affiche la grille de jeu, les scores, le tour actuel, les messages du bot, et le message final.
+•	Actions :
+1.	Dessine la zone de jeu en gris clair.
+2.	Dessine les lignes de la grille.
+3.	Affiche les symboles "X" et "O" : 
+	Pour chaque case non vide, calcule sa position et affiche le symbole avec la bonne couleur.
+4.	Dessine la zone latérale en blanc.
+5.	Affiche les scores (victoires de X, O, et matchs nuls).
+6.	Affiche le tour actuel ou "Partie terminée !".
+7.	Affiche un message si le bot réfléchit (clignotant toutes les 500 ms).
+8.	Affiche le message final (si la partie est terminée) et un bouton "Rejouer".
+
+Boucle Principale du Jeu
+a. Initialisation de la Boucle
+running = True
+while running:
+    current_time = pygame.time.get_ticks()
+•	running = True :
+o	Rôle : Variable booléenne qui contrôle si la boucle principale doit continuer.
+•	while running: :
+o	Rôle : Boucle infinie tant que running est True.
+•	current_time = pygame.time.get_ticks() :
+o	Rôle : Récupère le temps écoulé depuis le début du programme en millisecondes.
+o	Utilisation : Permet de gérer le délai du bot et les animations (comme le message clignotant).
+
+b. Gestion des Événements
+for event in pygame.event.get():
+    if event.type == pygame.QUIT:
+        running = False
+    if event.type == pygame.KEYDOWN:
+        if etat_actuel == ACCUEIL:
+            if event.key == pygame.K_r:
+                etat_actuel = REGLES
+        elif etat_actuel == REGLES:
+            if event.key == pygame.K_SPACE:
+                reinitialiser_jeu()
+                etat_actuel = JEU
+        elif etat_actuel == JEU:
+            if event.key == pygame.K_r and not jeu_en_cours:
+                reinitialiser_jeu()
+            if event.key == pygame.K_ESCAPE:
+                etat_actuel = ACCUEIL
+•	pygame.event.get() :
+o	Rôle : Récupère tous les événements en attente (clics, touches, etc.).
+•	event.type == pygame.QUIT :
+o	Rôle : Vérifie si l'utilisateur a fermé la fenêtre.
+o	Action : Met running à False pour quitter la boucle et fermer le programme.
+•	event.type == pygame.KEYDOWN :
+o	Rôle : Vérifie si une touche a été enfoncée.
+o	Si etat_actuel == ACCUEIL :
+	event.key == pygame.K_r : Si la touche R est enfoncée, passe à l'écran des règles.
+o	Si etat_actuel == REGLES :
+	event.key == pygame.K_SPACE : Si la touche ESPACE est enfoncée, réinitialise le jeu et passe à l'écran de jeu.
+o	Si etat_actuel == JEU :
+	event.key == pygame.K_r : Si la touche R est enfoncée et que la partie est terminée, réinitialise le jeu.
+	event.key == pygame.K_ESCAPE : Si la touche ESC est enfoncée, retourne à l'écran d'accueil.
+
+c. Gestion des Clics de Souris
+if event.type == pygame.MOUSEBUTTONDOWN and etat_actuel == JEU:
+    pos = pygame.mouse.get_pos()
+    if pos[0] < largeur_jeu and jeu_en_cours and joueur_actuel == "X":
+        clic_reussi, _ = gerer_clic(pos, joueur_actuel, plateau)
+        if clic_reussi:
+            gagnant = verifier_victoire(plateau)
+            if gagnant:
+                jeu_en_cours = False
+            else:
+                joueur_actuel = "O"
+                temps_debut_tour_bot = current_time
+    elif not jeu_en_cours:
+        bouton_rect = pygame.Rect(largeur_jeu + 50, hauteur_fenetre - 100, 300, 70)
+        if bouton_rect.collidepoint(pos):
+            reinitialiser_jeu()
+•	event.type == pygame.MOUSEBUTTONDOWN :
+o	Rôle : Vérifie si un clic de souris a été détecté.
+•	Si etat_actuel == JEU :
+o	pos = pygame.mouse.get_pos() : Récupère les coordonnées du clic.
+o	Si le clic est dans la zone de jeu, que la partie est en cours, et que c'est le tour du joueur "X" : 
+	gerer_clic(pos, joueur_actuel, plateau) : Gère le clic et met à jour le plateau.
+	Si le clic est valide : 
+	gagnant = verifier_victoire(plateau) : Vérifie si le joueur a gagné.
+	Si oui, la partie est terminée (jeu_en_cours = False).
+	Sinon, c'est au tour du bot (joueur_actuel = "O"), et on stocke le temps actuel pour le délai du bot.
+o	Si la partie est terminée et que le clic est sur le bouton "Rejouer" : 
+	reinitialiser_jeu() : Réinitialise le jeu.
+
+d. Logique du Bot
+if etat_actuel == JEU:
+    if joueur_actuel == "O" and jeu_en_cours:
+        if current_time - temps_debut_tour_bot >= TEMPS_ATTENTE_BOT:
+            position_bot = coup_bot(plateau)
+            if position_bot != -1:
+                plateau[position_bot] = "O"
+                gagnant = verifier_victoire(plateau)
+                if gagnant:
+                    jeu_en_cours = False
+                else:
+                    joueur_actuel = "X"
+            else:
+                jeu_en_cours = False
+•	Si etat_actuel == JEU et que c'est le tour du bot (joueur_actuel == "O") et que la partie est en cours : 
+o	current_time - temps_debut_tour_bot >= TEMPS_ATTENTE_BOT : 
+	Vérifie si le délai du bot est écoulé.
+o	position_bot = coup_bot(plateau) : 
+	Le bot choisit une case vide aléatoirement.
+o	Si une case est disponible : 
+	Met à jour le plateau avec le symbole "O".
+	Vérifie si le bot a gagné.
+	Si oui, la partie est terminée.
+	Sinon, c'est au tour du joueur "X".
+o	Sinon (aucune case disponible) : 
+	La partie est terminée (match nul).
+e. Fin de Partie
+if not jeu_en_cours and not message_final:
+    gagnant = verifier_victoire(plateau)
+    if gagnant == "X":
+        message_final = "Félicitations, tu as gagné !"
+        couleur_message = ROUGE
+        score_X += 1
+    elif gagnant == "O":
+        message_final = "Le bot a gagné !"
+        couleur_message = VERT
+        score_O += 1
+    elif gagnant == "NUL":
+        message_final = "Match nul !"
+        couleur_message = VIOLET
+        score_nuls += 1
+•	Si la partie est terminée (not jeu_en_cours) et qu'il n'y a pas encore de message final : 
+o	gagnant = verifier_victoire(plateau) : Détermine le gagnant ou un match nul.
+o	Met à jour message_final, couleur_message, et le score en conséquence.
+
+f. Affichage et Rafraîchissement
+if etat_actuel == ACCUEIL:
+    dessiner_accueil()
+elif etat_actuel == REGLES:
+    dessiner_regles()
+elif etat_actuel == JEU:
+    dessiner_jeu(current_time)
+pygame.display.flip()
+•	Appelle la fonction d'affichage correspondante à l'état actuel.
+•	pygame.display.flip() : 
+o	Rôle : Met à jour l'affichage à l'écran avec tous les changements effectués.
+Résumé Global du Fonctionnement
+1. Structure du Jeu
+•	Le jeu est divisé en trois états : 
+o	Accueil : Écran de bienvenue avec un bouton pour accéder aux règles.
+o	Règles : Écran affichant les règles du morpion.
+o	Jeu : Écran principal où se déroule la partie.
+2. Logique du Jeu
+•	Tour par tour : 
+o	Le joueur "X" commence, puis le bot "O" joue, et ainsi de suite.
+•	Vérification de victoire : 
+o	Après chaque coup, le jeu vérifie si un joueur a aligné trois symboles ou si la grille est pleine (match nul).
+•	Bot : 
+o	Joue aléatoirement après un délai d'une seconde.
+3. Interactions Utilisateur
+•	Clavier : 
+o	R : Passer de l'accueil aux règles.
+o	ESPACE : Commencer une partie depuis l'écran des règles.
+o	ESC : Retourner à l'accueil depuis le jeu.
+•	Souris : 
+o	Cliquer sur la grille pour jouer (si c'est le tour du joueur).
+o	Cliquer sur le bouton "Rejouer" pour recommencer une partie.
+4. Affichage
+•	Grille : 
+o	3x3 cases avec des lignes noires.
+o	Symboles "X" (rouge) et "O" (vert).
+•	Zone latérale : 
+o	Affiche les scores, le tour actuel, et les messages du bot.
+
